@@ -1,0 +1,50 @@
+# 📘 3 CÁCH BIỂU DIỄN ĐỒ THỊ TRONG LẬP TRÌNH THI ĐẤU
+# --------------------------------------------------
+# Với đồ thị có N đỉnh (từ 0 đến N-1), M cạnh.
+# Giả sử cạnh có trọng số (có thể = 1 nếu không trọng số)
+
+N = 4
+edges = [
+    (0, 1, 2),  # cạnh từ 0 → 1 trọng số 2
+    (0, 2, 4),
+    (1, 2, 1),
+    (1, 3, 7),
+    (2, 3, 3)
+]
+
+# ===================================================
+# 1️⃣ DANH SÁCH KỀ (Adjacency List)
+# Tốt cho duyệt BFS/DFS, đồ thị thưa
+adj_list = [[] for _ in range(N)]
+for u, v, w in edges:
+    adj_list[u].append((v, w))  # Nếu vô hướng: thêm cả (v → u)
+
+print("\n📋 Danh sách kề:")
+for u in range(N):
+    print(f"{u} → {adj_list[u]}")
+
+# ===================================================
+# 2️⃣ MA TRẬN KỀ (Adjacency Matrix)
+# Tốt cho kiểm tra tồn tại cạnh, đồ thị nhỏ
+adj_matrix = [[0]*N for _ in range(N)]
+for u, v, w in edges:
+    adj_matrix[u][v] = w
+
+print("\n🧮 Ma trận kề:")
+for row in adj_matrix:
+    print(row)
+
+# ===================================================
+# 3️⃣ DANH SÁCH CẠNH (Edge List)
+# Tốt cho Kruskal, Bellman-Ford
+edge_list = list(edges)  # đơn giản là giữ nguyên danh sách cạnh
+
+print("\n📎 Danh sách cạnh:")
+for u, v, w in edge_list:
+    print(f"{u} → {v} (trọng số {w})")
+
+# ===================================================
+# 🧠 GỢI Ý DÙNG
+# - Adjacency List: BFS, DFS, Dijkstra
+# - Adjacency Matrix: Floyd-Warshall, bài nhỏ
+# - Edge List: Kruskal, Bellman-Ford

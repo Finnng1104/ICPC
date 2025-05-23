@@ -1,0 +1,69 @@
+# 📘 DFS & BFS: Ứng dụng, ví dụ, giải thích chi tiết
+# ===============================================
+# DFS (Depth-First Search) và BFS (Breadth-First Search)
+# là 2 thuật toán cơ bản nhất dùng trong lý thuyết đồ thị
+
+from collections import deque
+
+# ĐỒ THỊ VÍ DỤ: danh sách kề (vô hướng, không trọng số)
+graph = {
+    0: [1, 2],
+    1: [0, 3],
+    2: [0, 3],
+    3: [1, 2, 4],
+    4: [3]
+}
+
+# ===============================================
+# ✅ DFS: Đi càng sâu càng tốt, dùng để tìm đường, kiểm tra liên thông, tìm chu trình...
+visited_dfs = [False] * len(graph)
+def dfs(u):
+    print("DFS thăm:", u)
+    visited_dfs[u] = True
+    for v in graph[u]:
+        if not visited_dfs[v]:
+            dfs(v)
+
+# ===============================================
+# ✅ BFS: Duyệt theo từng lớp, dùng để tìm đường đi ngắn nhất (khi không có trọng số)
+visited_bfs = [False] * len(graph)
+dist_bfs = [-1] * len(graph)  # Khoảng cách từ đỉnh gốc
+def bfs(start):
+    q = deque()
+    visited_bfs[start] = True
+    dist_bfs[start] = 0
+    q.append(start)
+
+    while q:
+        u = q.popleft()
+        print("BFS thăm:", u)
+        for v in graph[u]:
+            if not visited_bfs[v]:
+                visited_bfs[v] = True
+                dist_bfs[v] = dist_bfs[u] + 1
+                q.append(v)
+
+# ===============================================
+# 📌 GỌI THỰC TẾ:
+print("\n🔍 DFS từ đỉnh 0:")
+dfs(0)
+
+print("\n🔍 BFS từ đỉnh 0:")
+bfs(0)
+print("Khoảng cách BFS từ đỉnh 0:", dist_bfs)
+
+# ===============================================
+# 🔎 ỨNG DỤNG PHỔ BIẾN:
+# -----------------------------------------------
+# ✅ DFS:
+# - Kiểm tra đồ thị liên thông
+# - Tìm chu trình
+# - Thành phần liên thông mạnh/yếu
+# - Backtracking trong bài toán tổ hợp
+#
+# ✅ BFS:
+# - Tìm đường đi ngắn nhất trên đồ thị không trọng số
+# - Maze Solver (đi trong mê cung)
+# - Tìm khoảng cách từ 1 đỉnh đến mọi đỉnh khác (unweighted)
+
+# Ví dụ Maze: bfs để thoát ra khỏi mê cung 2D lưới

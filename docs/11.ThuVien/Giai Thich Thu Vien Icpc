@@ -1,0 +1,62 @@
+# 📚 GIẢI THÍCH CHI TIẾT THƯ VIỆN ICPC CẦN DÙNG
+# Bao gồm: numpy, opencv-python, pillow, torch, torchvision
+# Dành cho ôn thi ICPC có bài toán xử lý ảnh, AI, ma trận
+
+# ========== NUMPY ==========
+# Xử lý mảng số học nhanh, hỗ trợ toán học nền tảng
+import numpy as np
+
+arr = np.array([1, 2, 3, 4])  # tạo mảng numpy
+print("Mảng gốc:", arr)
+print("Cộng toàn bộ +1:", arr + 1)  # broadcast +1 cho toàn bộ
+print("Tổng:", np.sum(arr))        # tính tổng
+
+# ========== PILLOW (PIL) ==========
+# Đọc và xử lý ảnh đơn giản (Pillow là phiên bản nâng cấp PIL)
+from PIL import Image
+
+img = Image.new('RGB', (100, 100), color='red')  # tạo ảnh 100x100 màu đỏ
+img.save("sample.png")  # lưu ảnh
+print("📸 Đã tạo ảnh sample.png")
+
+# ========== OPENCV (cv2) ==========
+# Xử lý ảnh nâng cao: đọc, lọc, ngưỡng, contour, nhận diện
+import cv2
+
+img_cv = cv2.imread("sample.png")               # đọc ảnh bằng OpenCV
+gray = cv2.cvtColor(img_cv, cv2.COLOR_BGR2GRAY) # chuyển sang grayscale
+_, thresh = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)  # ngưỡng hóa ảnh
+cv2.imwrite("gray_thresh.png", thresh)          # lưu lại ảnh ngưỡng
+print("🧪 Đã xử lý ảnh: gray_thresh.png")
+
+# ========== TORCH (PyTorch) ==========
+# Thư viện học sâu AI, làm việc với tensor
+import torch
+
+x = torch.tensor([1.0, 2.0, 3.0])     # tạo tensor
+print("Tensor ban đầu:", x)
+print("Bình phương từng phần tử:", x ** 2)
+
+# ========== TORCHVISION ==========
+# Hỗ trợ xử lý ảnh trong học sâu: mô hình, transform
+import torchvision.transforms as transforms
+from torchvision import models
+
+transform = transforms.Compose([
+    transforms.Resize((224, 224)),
+    transforms.ToTensor()
+])
+
+# Tải mô hình ResNet18 pretrained
+model = models.resnet18(pretrained=True)
+model.eval()
+
+print("✅ Đã tải mô hình học sâu ResNet18 để dùng offline")
+
+# ========== TỔNG KẾT ==========
+print("\n✅ Tóm tắt:")
+print("- numpy:	Xử lý mảng số học nhanh")
+print("- pillow:	Xử lý ảnh đơn giản, mở/lưu ảnh")
+print("- opencv:	Xử lý ảnh nâng cao, AI/vision")
+print("- torch:	Thư viện học sâu mạnh mẽ")
+print("- torchvision:	Model, biến đổi ảnh cho học sâu")

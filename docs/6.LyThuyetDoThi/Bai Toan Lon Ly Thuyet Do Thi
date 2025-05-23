@@ -1,0 +1,64 @@
+# 📌 BÀI TOÁN LỚN TỔNG QUÁT VỀ LÝ THUYẾT ĐỒ THỊ
+# ============================================
+# ❓ Đề bài: Đường đi ngắn nhất trong đồ thị có hướng và trọng số.
+# Bạn được cho một đồ thị có N đỉnh và M cạnh. Mỗi cạnh từ u đến v có trọng số w.
+# Tìm đường đi ngắn nhất từ đỉnh 1 đến tất cả các đỉnh còn lại.
+
+# 🔍 INPUT:
+# - Dòng 1: N M
+# - M dòng tiếp: u v w
+
+# 🔎 OUTPUT:
+# - Dòng duy nhất gồm N số: khoảng cách ngắn nhất từ đỉnh 1 đến các đỉnh
+
+# ▶ Ví dụ:
+# Input:
+# 5 6
+# 1 2 2
+# 1 3 4
+# 2 3 1
+# 2 4 7
+# 3 5 3
+# 4 5 1
+# Output:
+# 0 2 3 9 6
+
+# 📌 MỤC TIÊU: Áp dụng Dijkstra để giải đồ thị trọng số không âm
+
+# ===================== CODE GIẢI CHI TIẾT =====================
+
+import heapq
+
+# ===== 1. Nhập dữ liệu =====
+n, m = map(int, input().split())  # Số đỉnh và số cạnh
+graph = [[] for _ in range(n)]    # Danh sách kề (adj list)
+
+for _ in range(m):
+    u, v, w = map(int, input().split())
+    graph[u-1].append((v-1, w))   # lưu cạnh u → v có trọng số w
+
+# ===== 2. Khởi tạo Dijkstra =====
+INF = int(1e9)
+dist = [INF]*n      # Mảng lưu khoảng cách từ node 0 đến các node khác
+dist[0] = 0         # Gốc là đỉnh 1 → index 0
+pq = [(0, 0)]       # Hàng đợi ưu tiên: (khoảng cách, node)
+
+# ===== 3. Dijkstra's algorithm =====
+while pq:
+    d, u = heapq.heappop(pq)  # lấy node gần nhất chưa thăm
+    if d > dist[u]: continue  # nếu đã có đường đi tốt hơn thì bỏ qua
+    for v, w in graph[u]:     # duyệt các đỉnh kề u
+        if dist[v] > dist[u] + w:
+            dist[v] = dist[u] + w
+            heapq.heappush(pq, (dist[v], v))  # cập nhật hàng đợi
+
+# ===== 4. In kết quả =====
+print(" ".join(map(str, dist)))
+
+# ========================= GIẢI THÍCH CÁC BƯỚC =========================
+# Bước 1️⃣: Phân tích input, xác định đồ thị có hướng + trọng số không âm → dùng Dijkstra
+# Bước 2️⃣: Dùng danh sách kề (adj list) để lưu đồ thị
+# Bước 3️⃣: Tạo mảng dist[] lưu khoảng cách ngắn nhất
+# Bước 4️⃣: Duyệt bằng hàng đợi ưu tiên (priority queue)
+# Bước 5️⃣: Cập nhật đường đi mới nếu tốt hơn → push lại vào queue
+# Bước 6️⃣: In kết quả cuối cùng là khoảng cách từ đỉnh 1 đến mọi đỉnh

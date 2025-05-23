@@ -1,0 +1,36 @@
+# install_icpc_env.py
+# 📦 Tự động hoá tạo môi trường ICPC và cài thư viện cần thiết
+# Sử dụng cho macOS / Linux terminal (khuyên dùng Python 3.8+)
+
+import os
+import subprocess
+
+print("\n🚀 Bắt đầu cài đặt môi trường ICPC...")
+
+# 1. Tạo môi trường ảo nếu chưa có
+if not os.path.exists("icpc-env"):
+    print("🧱 Đang tạo virtual environment 'icpc-env'...")
+    subprocess.run(["python3", "-m", "venv", "icpc-env"])
+else:
+    print("✅ Đã tồn tại 'icpc-env', bỏ qua bước tạo.")
+
+# 2. Gợi ý người dùng kích hoạt thủ công (do script không thể tự source môi trường cho shell cha)
+print("\n📌 Vui lòng chạy lệnh sau để kích hoạt môi trường trước khi tiếp tục:")
+print("source icpc-env/bin/activate")
+print("\nSau đó hãy chạy lệnh bên dưới để cài thư viện:")
+print("pip install opencv-python pillow numpy torch torchvision\n")
+
+# 3. Gợi ý kiểm tra sau khi cài xong
+with open("test_import.py", "w") as f:
+    f.write('''import cv2
+import numpy as np
+from PIL import Image
+import torch
+import torchvision
+
+print("✅ Môi trường ICPC đã sẵn sàng!")
+''')
+
+print("🧪 Đã tạo file kiểm tra: test_import.py")
+print("➡️ Sau khi cài xong thư viện, chạy: python test_import.py\n")
+print("🎯 Môi trường ICPC đã được thiết lập sẵn sàng để thi offline.")
