@@ -141,39 +141,68 @@ def mergesort(arr):
     res += left[i:] + right[j:]
     return res
 
-# HeapSort - dùng heap để sắp, O(n log n), không ổn định
-def heapsort(arr):
-    heapq.heapify(arr)
-    return [heapq.heappop(arr) for _ in range(len(arr))]
+# ==================== HEAPSORT ====================
+# ✔️ Mục đích: Sắp xếp mảng sử dụng heap (min-heap)
+# ✔️ Thời gian: O(n log n)
+# ❌ Không ổn định (không giữ thứ tự của phần tử bằng nhau)
+# 📌 Dễ dùng nhờ thư viện heapq trong Python
+import heapq
 
-# ==================== QUY HOẠCH ĐỘNG (DP) ====================
-memo = {}
+def heapsort(arr):
+    heapq.heapify(arr)  # Chuyển mảng thành min-heap
+    return [heapq.heappop(arr) for _ in range(len(arr))]  # Lấy lần lượt phần tử nhỏ nhất
+
+
+# ==================== QUY HOẠCH ĐỘNG (DYNAMIC PROGRAMMING - DP) ====================
+# ✔️ Mục đích: Tối ưu hàm đệ quy bằng cách nhớ kết quả đã tính
+# ✔️ Ứng dụng: Tính Fibonacci nhanh, tránh đệ quy chồng lặp
+# 📌 memo là một từ điển lưu kết quả trung gian
+# 📌 Cần reset memo khi dùng lại để tránh lỗi
+
+memo = {}  # Lưu giá trị đã tính
+
 def fib(n):
     if n <= 1:
         return n
     if n in memo:
         return memo[n]
-    memo[n] = fib(n-1) + fib(n-2)
+    memo[n] = fib(n - 1) + fib(n - 2)
     return memo[n]
 
-# ==================== GREEDY ====================
+
+# ==================== THUẬT TOÁN THAM LAM (GREEDY) ====================
+# ✔️ Mục đích: Đổi tiền với số lượng xu ít nhất
+# ✔️ Tiền đề: Luôn chọn đồng xu lớn nhất (đã sắp xếp giảm dần)
+# ❗ Chỉ đúng nếu hệ thống tiền là chuẩn (ví dụ: VNĐ hoặc USD)
+# ❌ Không áp dụng được với hệ phi chuẩn (vd: coin = [1, 3, 4])
+# 📌 Đây là ví dụ kinh điển minh họa cho Greedy
+
 def greedy_coin_change(coins, amount):
-    coins.sort(reverse=True)
+    coins.sort(reverse=True)  # Sắp xếp coin từ lớn → nhỏ
     res = 0
     for coin in coins:
         while amount >= coin:
             amount -= coin
             res += 1
-    return res
+    return res  # Trả về tổng số coin dùng
+
 
 # ==================== BACKTRACKING ====================
-res = []
+# ✔️ Mục đích: Tìm tất cả các hoán vị (permutation) của 1 danh sách
+# ✔️ Ý tưởng: Duyệt mọi tổ hợp có thể bằng cách thử - sai - thử lại (backtrack)
+# 📌 path là kết quả tạm thời, options là các phần tử còn lại
+# 📌 Mỗi lần chọn 1 phần tử → gọi đệ quy với phần còn lại
+# ❗ Hàm này tạo ra tất cả hoán vị (n!), dùng cho n nhỏ (n ≤ 8)
+
+res = []  # Kết quả lưu ở đây
+
 def backtrack(path, options):
-    if not options:
+    if not options:  # Khi không còn gì để chọn → thêm path vào kết quả
         res.append(path)
         return
     for i in range(len(options)):
-        backtrack(path + [options[i]], options[:i] + options[i+1:])
+        backtrack(path + [options[i]], options[:i] + options[i+1:])  # Chọn options[i], loại khỏi danh sách
+
 
 # ==================== BIT MANIPULATION ====================
 x = 10  # 1010

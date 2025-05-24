@@ -1,69 +1,317 @@
 # 📘 DFS & BFS: Ứng dụng, ví dụ, giải thích chi tiết
 # ===============================================
-# DFS (Depth-First Search) và BFS (Breadth-First Search)
-# là 2 thuật toán cơ bản nhất dùng trong lý thuyết đồ thị
+"""
+DFS (Depth-First Search) và BFS (Breadth-First Search) là hai thuật toán cơ bản nhất
+trong lý thuyết đồ thị, với nhiều ứng dụng quan trọng trong ICPC:
+
+1. Đặc điểm chính:
+   - DFS: Đi sâu nhất có thể theo một nhánh trước khi quay lui
+   - BFS: Duyệt theo từng lớp, từ gần đến xa
+
+2. So sánh:
+   - DFS: Dùng stack (đệ quy), tốt cho bài toán cần đi sâu
+   - BFS: Dùng queue, tốt cho bài toán cần tìm đường ngắn nhất
+
+3. Độ phức tạp:
+   - Thời gian: O(V + E) với V đỉnh, E cạnh
+   - Không gian: O(V) cho visited array
+   - DFS: O(V) cho stack (đệ quy)
+   - BFS: O(V) cho queue
+"""
 
 from collections import deque
 
-# ĐỒ THỊ VÍ DỤ: danh sách kề (vô hướng, không trọng số)
+# ========= VÍ DỤ ĐỒ THỊ =========
+"""
+Đồ thị vô hướng không trọng số:
+    0
+   / \
+  1   2
+  |   |
+  3 - 4
+  |
+  5
+"""
 graph = {
     0: [1, 2],
     1: [0, 3],
-    2: [0, 3],
-    3: [1, 2, 4],
-    4: [3]
+    2: [0, 3, 4],
+    3: [1, 2, 4, 5],
+    4: [2, 3],
+    5: [3]
 }
 
-# ===============================================
-# ✅ DFS: Đi càng sâu càng tốt, dùng để tìm đường, kiểm tra liên thông, tìm chu trình...
+# ========= DFS CHI TIẾT =========
+"""
+DFS (Depth-First Search):
+1. Cách hoạt động:
+   - Bắt đầu từ một đỉnh
+   - Đi sâu nhất có thể theo một nhánh
+   - Quay lui khi gặp đỉnh đã thăm
+   - Tiếp tục với nhánh khác
+
+2. Ứng dụng:
+   - Kiểm tra liên thông
+   - Tìm chu trình
+   - Topological sort
+   - Backtracking
+   - Tìm thành phần liên thông
+   - Kiểm tra đồ thị hai phía
+"""
+
+# 1. DFS cơ bản
 visited_dfs = [False] * len(graph)
 def dfs(u):
+    """
+    DFS từ đỉnh u
+    
+    Tham số:
+    - u: đỉnh bắt đầu duyệt
+    
+    Cách hoạt động:
+    1. Đánh dấu đỉnh u đã thăm
+    2. Duyệt đệ quy các đỉnh kề chưa thăm
+    3. In ra thứ tự thăm
+    """
     print("DFS thăm:", u)
     visited_dfs[u] = True
     for v in graph[u]:
         if not visited_dfs[v]:
             dfs(v)
 
-# ===============================================
-# ✅ BFS: Duyệt theo từng lớp, dùng để tìm đường đi ngắn nhất (khi không có trọng số)
+# 2. DFS với thời gian vào/ra
+time_in = [0] * len(graph)
+time_out = [0] * len(graph)
+timer = 0
+def dfs_timer(u):
+    """
+    DFS với thời gian vào/ra của mỗi đỉnh
+    
+    Ứng dụng:
+    - Kiểm tra đỉnh con trong cây DFS
+    - Tìm cạnh ngược (back edge)
+    - Phát hiện chu trình
+    """
+    global timer
+    time_in[u] = timer
+    timer += 1
+    for v in graph[u]:
+        if time_in[v] == 0:  # Chưa thăm
+            dfs_timer(v)
+    time_out[u] = timer
+    timer += 1
+
+# 3. DFS tìm chu trình
+def has_cycle():
+    """
+    Kiểm tra đồ thị có chu trình không
+    
+    Cách hoạt động:
+    1. Dùng DFS với 3 trạng thái:
+       - 0: chưa thăm
+       - 1: đang thăm (trong stack)
+       - 2: đã thăm xong
+    2. Nếu gặp đỉnh đang thăm → có chu trình
+    """
+    state = [0] * len(graph)  # 0: chưa thăm, 1: đang thăm, 2: đã thăm xong
+    
+    def dfs_cycle(u):
+        state[u] = 1  # Đang thăm
+        for v in graph[u]:
+            if state[v] == 0:  # Chưa thăm
+                if dfs_cycle(v):
+                    return True
+            elif state[v] == 1:  # Đang thăm → có chu trình
+                return True
+        state[u] = 2  # Đã thăm xong
+        return False
+    
+    for u in range(len(graph)):
+        if state[u] == 0 and dfs_cycle(u):
+            return True
+    return False
+
+# ========= BFS CHI TIẾT =========
+"""
+BFS (Breadth-First Search):
+1. Cách hoạt động:
+   - Bắt đầu từ một đỉnh
+   - Duyệt theo từng lớp
+   - Lớp i: các đỉnh cách đỉnh gốc i cạnh
+   - Dùng queue để quản lý các đỉnh
+
+2. Ứng dụng:
+   - Tìm đường đi ngắn nhất (unweighted)
+   - Kiểm tra đồ thị hai phía
+   - Tìm thành phần liên thông
+   - Maze solver
+   - Web crawling
+"""
+
+# 1. BFS cơ bản
 visited_bfs = [False] * len(graph)
-dist_bfs = [-1] * len(graph)  # Khoảng cách từ đỉnh gốc
+dist_bfs = [-1] * len(graph)
 def bfs(start):
+    """
+    BFS từ đỉnh start
+    
+    Tham số:
+    - start: đỉnh bắt đầu duyệt
+    
+    Cách hoạt động:
+    1. Khởi tạo queue với đỉnh start
+    2. Lấy đỉnh từ queue, thăm các đỉnh kề
+    3. Cập nhật khoảng cách và thêm vào queue
+    """
     q = deque()
     visited_bfs[start] = True
     dist_bfs[start] = 0
     q.append(start)
-
+    
     while q:
         u = q.popleft()
-        print("BFS thăm:", u)
+        print("BFS thăm:", u, "khoảng cách:", dist_bfs[u])
         for v in graph[u]:
             if not visited_bfs[v]:
                 visited_bfs[v] = True
                 dist_bfs[v] = dist_bfs[u] + 1
                 q.append(v)
 
-# ===============================================
-# 📌 GỌI THỰC TẾ:
-print("\n🔍 DFS từ đỉnh 0:")
-dfs(0)
+# 2. BFS tìm đường đi
+def bfs_path(start, end):
+    """
+    Tìm đường đi ngắn nhất từ start đến end
+    
+    Trả về:
+    - Đường đi ngắn nhất (list)
+    - -1 nếu không có đường đi
+    """
+    q = deque()
+    visited = [False] * len(graph)
+    parent = [-1] * len(graph)
+    
+    visited[start] = True
+    q.append(start)
+    
+    while q:
+        u = q.popleft()
+        if u == end:
+            # Tìm đường đi
+            path = []
+            while u != -1:
+                path.append(u)
+                u = parent[u]
+            return path[::-1]
+        
+        for v in graph[u]:
+            if not visited[v]:
+                visited[v] = True
+                parent[v] = u
+                q.append(v)
+    
+    return -1
 
-print("\n🔍 BFS từ đỉnh 0:")
-bfs(0)
-print("Khoảng cách BFS từ đỉnh 0:", dist_bfs)
+# 3. BFS trong maze 2D
+def solve_maze(maze, start, end):
+    """
+    Tìm đường đi trong mê cung 2D
+    
+    Tham số:
+    - maze: ma trận 2D (0: đường đi, 1: tường)
+    - start: tọa độ bắt đầu (x, y)
+    - end: tọa độ kết thúc (x, y)
+    
+    Trả về:
+    - Đường đi ngắn nhất
+    - -1 nếu không có đường đi
+    """
+    n, m = len(maze), len(maze[0])
+    visited = [[False]*m for _ in range(n)]
+    parent = [[None]*m for _ in range(n)]
+    
+    # 4 hướng: lên, phải, xuống, trái
+    dx = [-1, 0, 1, 0]
+    dy = [0, 1, 0, -1]
+    
+    q = deque([start])
+    visited[start[0]][start[1]] = True
+    
+    while q:
+        x, y = q.popleft()
+        if (x, y) == end:
+            # Tìm đường đi
+            path = []
+            while (x, y) != start:
+                path.append((x, y))
+                x, y = parent[x][y]
+            path.append(start)
+            return path[::-1]
+        
+        for i in range(4):
+            nx, ny = x + dx[i], y + dy[i]
+            if (0 <= nx < n and 0 <= ny < m and 
+                not visited[nx][ny] and maze[nx][ny] == 0):
+                visited[nx][ny] = True
+                parent[nx][ny] = (x, y)
+                q.append((nx, ny))
+    
+    return -1
 
-# ===============================================
-# 🔎 ỨNG DỤNG PHỔ BIẾN:
-# -----------------------------------------------
-# ✅ DFS:
-# - Kiểm tra đồ thị liên thông
-# - Tìm chu trình
-# - Thành phần liên thông mạnh/yếu
-# - Backtracking trong bài toán tổ hợp
-#
-# ✅ BFS:
-# - Tìm đường đi ngắn nhất trên đồ thị không trọng số
-# - Maze Solver (đi trong mê cung)
-# - Tìm khoảng cách từ 1 đỉnh đến mọi đỉnh khác (unweighted)
+# ========= ỨNG DỤNG THỰC TẾ =========
+"""
+1. Bài toán ICPC phổ biến:
+   - Tìm đường đi ngắn nhất (BFS)
+   - Kiểm tra liên thông (DFS/BFS)
+   - Tìm chu trình (DFS)
+   - Maze solver (BFS)
+   - Topological sort (DFS)
+   - Kiểm tra đồ thị hai phía (BFS)
 
-# Ví dụ Maze: bfs để thoát ra khỏi mê cung 2D lưới
+2. Ứng dụng thực tế:
+   - GPS navigation (BFS)
+   - Web crawling (BFS)
+   - Game AI pathfinding (BFS)
+   - Dependency resolution (DFS)
+   - Cycle detection (DFS)
+   - Social network analysis (BFS/DFS)
+"""
+
+# ========= DEMO =========
+if __name__ == "__main__":
+    print("\n=== Demo DFS & BFS ===")
+    
+    print("\n1. DFS cơ bản:")
+    dfs(0)
+    
+    print("\n2. DFS với thời gian:")
+    dfs_timer(0)
+    print("Thời gian vào:", time_in)
+    print("Thời gian ra:", time_out)
+    
+    print("\n3. Kiểm tra chu trình:")
+    print("Đồ thị có chu trình:", has_cycle())
+    
+    print("\n4. BFS cơ bản:")
+    bfs(0)
+    print("Khoảng cách từ đỉnh 0:", dist_bfs)
+    
+    print("\n5. BFS tìm đường đi:")
+    path = bfs_path(0, 5)
+    print("Đường đi từ 0 đến 5:", path)
+    
+    print("\n6. Demo maze solver:")
+    maze = [
+        [0, 1, 0, 0, 0],
+        [0, 1, 0, 1, 0],
+        [0, 0, 0, 1, 0],
+        [1, 1, 1, 1, 0],
+        [0, 0, 0, 0, 0]
+    ]
+    path = solve_maze(maze, (0, 0), (4, 4))
+    if path != -1:
+        print("Đường đi trong maze:", path)
+    else:
+        print("Không có đường đi")
+    
+    print("\n✅ Đã demo các ứng dụng của DFS & BFS")
+    print("💡 Hãy thử áp dụng vào các bài toán thực tế!")

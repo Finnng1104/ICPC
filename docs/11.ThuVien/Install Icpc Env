@@ -1,36 +1,323 @@
 # install_icpc_env.py
 # 📦 Tự động hoá tạo môi trường ICPC và cài thư viện cần thiết
-# Sử dụng cho macOS / Linux terminal (khuyên dùng Python 3.8+)
+# ===============================================
+"""
+Script cài đặt môi trường ICPC tự động:
+1. Tạo và quản lý virtual environment
+2. Cài đặt các thư viện cần thiết
+3. Kiểm tra môi trường
+4. Tạo cấu trúc thư mục chuẩn
+
+Hỗ trợ:
+- macOS / Linux
+- Python 3.8+
+- Cài đặt offline (tải sẵn wheel files)
+"""
 
 import os
+import sys
 import subprocess
+import platform
+import shutil
+from pathlib import Path
 
-print("\n🚀 Bắt đầu cài đặt môi trường ICPC...")
+# ========== CẤU HÌNH ==========
+REQUIRED_PYTHON = (3, 8)  # Python 3.8+
+REQUIRED_PACKAGES = {
+    'numpy': '1.21.0',
+    'opencv-python': '4.5.0',
+    'pillow': '8.0.0',
+    'torch': '1.9.0',
+    'torchvision': '0.10.0'
+}
 
-# 1. Tạo môi trường ảo nếu chưa có
-if not os.path.exists("icpc-env"):
-    print("🧱 Đang tạo virtual environment 'icpc-env'...")
-    subprocess.run(["python3", "-m", "venv", "icpc-env"])
-else:
-    print("✅ Đã tồn tại 'icpc-env', bỏ qua bước tạo.")
+# Cấu trúc thư mục chuẩn ICPC
+ICPC_DIRS = [
+    'docs',
+    'docs/0.Coban',
+    'docs/1.ThamKhao',
+    'docs/2.ThuVien',
+    'docs/3.BaiTap',
+    'docs/4.GiaiThuat',
+    'docs/5.Cay',
+    'docs/6.LyThuyetDoThi',
+    'docs/7.DynamicProgramming',
+    'docs/8.Geometry',
+    'docs/9.String',
+    'docs/10.Probability',
+    'docs/11.ThuVien',
+    'docs/12.ImageProcessing',
+    'docs/13.AI',
+    'docs/14.GameTheory',
+    'docs/15.Advanced',
+    'data',
+    'data/images',
+    'data/models',
+    'data/datasets',
+    'src',
+    'src/utils',
+    'src/algorithms',
+    'src/visualization',
+    'tests',
+    'notebooks'
+]
 
-# 2. Gợi ý người dùng kích hoạt thủ công (do script không thể tự source môi trường cho shell cha)
-print("\n📌 Vui lòng chạy lệnh sau để kích hoạt môi trường trước khi tiếp tục:")
-print("source icpc-env/bin/activate")
-print("\nSau đó hãy chạy lệnh bên dưới để cài thư viện:")
-print("pip install opencv-python pillow numpy torch torchvision\n")
+# ========== KIỂM TRA MÔI TRƯỜNG ==========
+def check_python_version():
+    """Kiểm tra phiên bản Python"""
+    current = sys.version_info[:2]
+    if current < REQUIRED_PYTHON:
+        print(f"❌ Python {REQUIRED_PYTHON[0]}.{REQUIRED_PYTHON[1]}+ required")
+        print(f"   Current version: {current[0]}.{current[1]}")
+        sys.exit(1)
+    print(f"✅ Python version: {current[0]}.{current[1]}")
 
-# 3. Gợi ý kiểm tra sau khi cài xong
-with open("test_import.py", "w") as f:
-    f.write('''import cv2
-import numpy as np
-from PIL import Image
-import torch
-import torchvision
+def check_system():
+    """Kiểm tra hệ điều hành"""
+    system = platform.system().lower()
+    if system not in ['darwin', 'linux']:
+        print(f"❌ Unsupported system: {system}")
+        print("   This script only supports macOS and Linux")
+        sys.exit(1)
+    print(f"✅ System: {system}")
 
-print("✅ Môi trường ICPC đã sẵn sàng!")
-''')
+def check_dependencies():
+    """Kiểm tra các công cụ cần thiết"""
+    required = ['python3', 'pip', 'git']
+    missing = []
+    
+    for cmd in required:
+        try:
+            subprocess.run([cmd, '--version'], 
+                         stdout=subprocess.PIPE, 
+                         stderr=subprocess.PIPE)
+        except FileNotFoundError:
+            missing.append(cmd)
+    
+    if missing:
+        print("❌ Missing required tools:", ', '.join(missing))
+        sys.exit(1)
+    print("✅ All required tools are installed")
 
-print("🧪 Đã tạo file kiểm tra: test_import.py")
-print("➡️ Sau khi cài xong thư viện, chạy: python test_import.py\n")
-print("🎯 Môi trường ICPC đã được thiết lập sẵn sàng để thi offline.")
+# ========== TẠO MÔI TRƯỜNG ==========
+def create_virtual_env():
+    """Tạo virtual environment nếu chưa tồn tại"""
+    venv_path = Path("icpc-env")
+    
+    if venv_path.exists():
+        print("✅ Virtual environment 'icpc-env' already exists")
+        return
+    
+    print("🧱 Creating virtual environment 'icpc-env'...")
+    try:
+        subprocess.run([sys.executable, "-m", "venv", "icpc-env"],
+                      check=True)
+        print("✅ Virtual environment created successfully")
+    except subprocess.CalledProcessError as e:
+        print(f"❌ Failed to create virtual environment: {e}")
+        sys.exit(1)
+
+def create_directory_structure():
+    """Tạo cấu trúc thư mục chuẩn ICPC"""
+    print("\n📁 Creating ICPC directory structure...")
+    
+    for dir_path in ICPC_DIRS:
+        path = Path(dir_path)
+        if not path.exists():
+            path.mkdir(parents=True, exist_ok=True)
+            print(f"  Created: {dir_path}")
+    
+    # Tạo README.md trong mỗi thư mục
+    for dir_path in ICPC_DIRS:
+        readme_path = Path(dir_path) / "README.md"
+        if not readme_path.exists():
+            with open(readme_path, "w") as f:
+                f.write(f"# {dir_path}\n\n")
+                f.write("## Description\n")
+                f.write("This directory contains...\n\n")
+                f.write("## Contents\n")
+                f.write("- [ ] Add content description\n")
+
+# ========== CÀI ĐẶT THƯ VIỆN ==========
+def create_requirements_file():
+    """Tạo file requirements.txt"""
+    print("\n📝 Creating requirements.txt...")
+    
+    with open("requirements.txt", "w") as f:
+        f.write("# ICPC Environment Requirements\n")
+        f.write("# Generated automatically\n\n")
+        for package, version in REQUIRED_PACKAGES.items():
+            f.write(f"{package}>={version}\n")
+    
+    print("✅ Created requirements.txt")
+
+def download_wheel_files():
+    """Tải sẵn wheel files cho cài đặt offline"""
+    print("\n📦 Downloading wheel files for offline installation...")
+    
+    wheels_dir = Path("wheels")
+    wheels_dir.mkdir(exist_ok=True)
+    
+    # Tải wheel files
+    for package, version in REQUIRED_PACKAGES.items():
+        wheel_file = f"{package}-{version}-*.whl"
+        if not list(wheels_dir.glob(wheel_file)):
+            print(f"  Downloading {package}...")
+            try:
+                subprocess.run([
+                    "pip", "download",
+                    "--only-binary=:all:",
+                    "--platform", "manylinux2014_x86_64",
+                    "--python-version", "38",
+                    "--dest", "wheels",
+                    f"{package}>={version}"
+                ], check=True)
+            except subprocess.CalledProcessError as e:
+                print(f"  ❌ Failed to download {package}: {e}")
+                continue
+    
+    print("✅ Wheel files downloaded to 'wheels' directory")
+
+# ========== KIỂM TRA SAU CÀI ĐẶT ==========
+def create_test_script():
+    """Tạo script kiểm tra môi trường"""
+    print("\n🧪 Creating environment test script...")
+    
+    test_code = '''# test_icpc_env.py
+import sys
+import platform
+import subprocess
+from pathlib import Path
+
+def check_imports():
+    """Kiểm tra import các thư viện"""
+    packages = {
+        'numpy': 'NumPy',
+        'cv2': 'OpenCV',
+        'PIL': 'Pillow',
+        'torch': 'PyTorch',
+        'torchvision': 'TorchVision'
+    }
+    
+    print("\\n🔍 Checking package imports...")
+    all_ok = True
+    
+    for module, name in packages.items():
+        try:
+            __import__(module)
+            print(f"✅ {name} imported successfully")
+        except ImportError as e:
+            print(f"❌ Failed to import {name}: {e}")
+            all_ok = False
+    
+    return all_ok
+
+def check_versions():
+    """Kiểm tra phiên bản các thư viện"""
+    import numpy as np
+    import cv2
+    from PIL import Image
+    import torch
+    import torchvision
+    
+    print("\\n📊 Package versions:")
+    print(f"Python: {sys.version.split()[0]}")
+    print(f"NumPy: {np.__version__}")
+    print(f"OpenCV: {cv2.__version__}")
+    print(f"Pillow: {Image.__version__}")
+    print(f"PyTorch: {torch.__version__}")
+    print(f"TorchVision: {torchvision.__version__}")
+
+def check_gpu():
+    """Kiểm tra GPU support"""
+    import torch
+    
+    print("\\n🎮 GPU Support:")
+    if torch.cuda.is_available():
+        print(f"✅ CUDA available: {torch.cuda.get_device_name(0)}")
+        print(f"   CUDA version: {torch.version.cuda}")
+    else:
+        print("ℹ️ CUDA not available, using CPU")
+
+def check_directories():
+    """Kiểm tra cấu trúc thư mục"""
+    required_dirs = [
+        'docs', 'data', 'src', 'tests', 'notebooks',
+        'data/images', 'data/models', 'data/datasets'
+    ]
+    
+    print("\\n📁 Checking directory structure...")
+    all_ok = True
+    
+    for dir_path in required_dirs:
+        path = Path(dir_path)
+        if path.exists() and path.is_dir():
+            print(f"✅ {dir_path} exists")
+        else:
+            print(f"❌ {dir_path} missing")
+            all_ok = False
+    
+    return all_ok
+
+if __name__ == "__main__":
+    print("🚀 Testing ICPC Environment...")
+    
+    # Kiểm tra hệ thống
+    print(f"\\n💻 System: {platform.system()} {platform.release()}")
+    print(f"Python: {sys.version.split()[0]}")
+    
+    # Chạy các kiểm tra
+    imports_ok = check_imports()
+    check_versions()
+    check_gpu()
+    dirs_ok = check_directories()
+    
+    # Kết luận
+    print("\\n📊 Test Summary:")
+    print(f"Package imports: {'✅ OK' if imports_ok else '❌ Failed'}")
+    print(f"Directory structure: {'✅ OK' if dirs_ok else '❌ Failed'}")
+    
+    if imports_ok and dirs_ok:
+        print("\\n🎉 ICPC environment is ready!")
+    else:
+        print("\\n⚠️ Some tests failed. Please check the output above.")
+'''
+    
+    with open("test_icpc_env.py", "w") as f:
+        f.write(test_code)
+    
+    print("✅ Created test_icpc_env.py")
+
+# ========== MAIN ==========
+def main():
+    """Hàm chính"""
+    print("\n🚀 Starting ICPC Environment Setup...")
+    
+    # Kiểm tra môi trường
+    check_python_version()
+    check_system()
+    check_dependencies()
+    
+    # Tạo môi trường
+    create_virtual_env()
+    create_directory_structure()
+    create_requirements_file()
+    download_wheel_files()
+    create_test_script()
+    
+    # Hướng dẫn người dùng
+    print("\n📌 Next steps:")
+    print("1. Activate the virtual environment:")
+    print("   source icpc-env/bin/activate")
+    print("\n2. Install packages (online):")
+    print("   pip install -r requirements.txt")
+    print("\n   Or install offline (if you downloaded wheels):")
+    print("   pip install --no-index --find-links=wheels -r requirements.txt")
+    print("\n3. Test the environment:")
+    print("   python test_icpc_env.py")
+    
+    print("\n🎯 ICPC environment setup completed!")
+    print("💡 Check test_icpc_env.py for detailed environment information")
+
+if __name__ == "__main__":
+    main()

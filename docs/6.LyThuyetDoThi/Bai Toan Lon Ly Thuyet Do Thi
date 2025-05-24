@@ -1,64 +1,306 @@
 # 📌 BÀI TOÁN LỚN TỔNG QUÁT VỀ LÝ THUYẾT ĐỒ THỊ
 # ============================================
-# ❓ Đề bài: Đường đi ngắn nhất trong đồ thị có hướng và trọng số.
-# Bạn được cho một đồ thị có N đỉnh và M cạnh. Mỗi cạnh từ u đến v có trọng số w.
-# Tìm đường đi ngắn nhất từ đỉnh 1 đến tất cả các đỉnh còn lại.
+"""
+Lý thuyết đồ thị là một chủ đề quan trọng trong ICPC với nhiều ứng dụng thực tế:
 
-# 🔍 INPUT:
-# - Dòng 1: N M
-# - M dòng tiếp: u v w
+1. Các dạng bài phổ biến:
+   - Đường đi ngắn nhất (Dijkstra, Floyd-Warshall)
+   - Cây khung nhỏ nhất (Kruskal, Prim)
+   - Luồng cực đại (Ford-Fulkerson, Dinic)
+   - Thành phần liên thông (DFS, BFS)
+   - Chu trình Euler/Hamilton
 
-# 🔎 OUTPUT:
-# - Dòng duy nhất gồm N số: khoảng cách ngắn nhất từ đỉnh 1 đến các đỉnh
+2. Ứng dụng thực tế:
+   - Tìm đường đi tối ưu (GPS, bản đồ)
+   - Thiết kế mạng (cây khung, luồng)
+   - Phân tích mạng xã hội
+   - Game AI (tìm đường, trò chơi)
+   - Lập lịch và tối ưu hóa
 
-# ▶ Ví dụ:
-# Input:
-# 5 6
-# 1 2 2
-# 1 3 4
-# 2 3 1
-# 2 4 7
-# 3 5 3
-# 4 5 1
-# Output:
-# 0 2 3 9 6
+3. Kỹ thuật quan trọng:
+   - Biểu diễn đồ thị (ma trận kề, danh sách kề)
+   - Duyệt đồ thị (DFS, BFS)
+   - Quy hoạch động trên đồ thị
+   - Xử lý đồ thị có hướng/vô hướng
+   - Tối ưu hóa thuật toán
+"""
 
-# 📌 MỤC TIÊU: Áp dụng Dijkstra để giải đồ thị trọng số không âm
+# ========= BÀI TOÁN 1: ĐƯỜNG ĐI NGẮN NHẤT (DIJKSTRA) =========
+"""
+❓ Đề bài: Đường đi ngắn nhất trong đồ thị có hướng và trọng số.
+Bạn được cho một đồ thị có N đỉnh và M cạnh. Mỗi cạnh từ u đến v có trọng số w.
+Tìm đường đi ngắn nhất từ đỉnh 1 đến tất cả các đỉnh còn lại.
 
-# ===================== CODE GIẢI CHI TIẾT =====================
+🔍 INPUT:
+- Dòng 1: N M
+- M dòng tiếp: u v w
+
+🔎 OUTPUT:
+- Dòng duy nhất gồm N số: khoảng cách ngắn nhất từ đỉnh 1 đến các đỉnh
+
+▶ Ví dụ:
+Input:
+5 6
+1 2 2
+1 3 4
+2 3 1
+2 4 7
+3 5 3
+4 5 1
+Output:
+0 2 3 9 6
+
+💡 Phân tích:
+1. Đồ thị có hướng + trọng số không âm → dùng Dijkstra
+2. Cần lưu đường đi → thêm mảng parent[]
+3. Có thể có nhiều test case → reset biến
+4. Giới hạn N ≤ 10^5 → dùng danh sách kề
+"""
 
 import heapq
 
-# ===== 1. Nhập dữ liệu =====
-n, m = map(int, input().split())  # Số đỉnh và số cạnh
-graph = [[] for _ in range(n)]    # Danh sách kề (adj list)
+def solve_dijkstra():
+    # ===== 1. Nhập dữ liệu =====
+    n, m = map(int, input().split())
+    graph = [[] for _ in range(n)]
+    
+    for _ in range(m):
+        u, v, w = map(int, input().split())
+        graph[u-1].append((v-1, w))
+    
+    # ===== 2. Khởi tạo =====
+    INF = int(1e9)
+    dist = [INF]*n
+    parent = [-1]*n  # Lưu đường đi
+    dist[0] = 0
+    pq = [(0, 0)]
+    
+    # ===== 3. Dijkstra =====
+    while pq:
+        d, u = heapq.heappop(pq)
+        if d > dist[u]: continue
+        
+        for v, w in graph[u]:
+            if dist[v] > dist[u] + w:
+                dist[v] = dist[u] + w
+                parent[v] = u  # Lưu node cha
+                heapq.heappush(pq, (dist[v], v))
+    
+    # ===== 4. In kết quả =====
+    print(" ".join(map(str, dist)))
+    
+    # In đường đi từ 1 đến n (nếu cần)
+    if parent[n-1] != -1:
+        path = []
+        v = n-1
+        while v != -1:
+            path.append(v+1)
+            v = parent[v]
+        print("Đường đi:", "->".join(map(str, reversed(path))))
 
-for _ in range(m):
-    u, v, w = map(int, input().split())
-    graph[u-1].append((v-1, w))   # lưu cạnh u → v có trọng số w
+# ========= BÀI TOÁN 2: CÂY KHUNG NHỎ NHẤT (KRUSKAL) =========
+"""
+❓ Đề bài: Cho đồ thị vô hướng có trọng số, tìm cây khung nhỏ nhất.
 
-# ===== 2. Khởi tạo Dijkstra =====
-INF = int(1e9)
-dist = [INF]*n      # Mảng lưu khoảng cách từ node 0 đến các node khác
-dist[0] = 0         # Gốc là đỉnh 1 → index 0
-pq = [(0, 0)]       # Hàng đợi ưu tiên: (khoảng cách, node)
+🔍 INPUT:
+- Dòng 1: N M
+- M dòng tiếp: u v w
 
-# ===== 3. Dijkstra's algorithm =====
-while pq:
-    d, u = heapq.heappop(pq)  # lấy node gần nhất chưa thăm
-    if d > dist[u]: continue  # nếu đã có đường đi tốt hơn thì bỏ qua
-    for v, w in graph[u]:     # duyệt các đỉnh kề u
-        if dist[v] > dist[u] + w:
-            dist[v] = dist[u] + w
-            heapq.heappush(pq, (dist[v], v))  # cập nhật hàng đợi
+🔎 OUTPUT:
+- Tổng trọng số cây khung nhỏ nhất
 
-# ===== 4. In kết quả =====
-print(" ".join(map(str, dist)))
+▶ Ví dụ:
+Input:
+4 5
+1 2 2
+1 3 3
+2 3 1
+2 4 4
+3 4 5
+Output:
+7
 
-# ========================= GIẢI THÍCH CÁC BƯỚC =========================
-# Bước 1️⃣: Phân tích input, xác định đồ thị có hướng + trọng số không âm → dùng Dijkstra
-# Bước 2️⃣: Dùng danh sách kề (adj list) để lưu đồ thị
-# Bước 3️⃣: Tạo mảng dist[] lưu khoảng cách ngắn nhất
-# Bước 4️⃣: Duyệt bằng hàng đợi ưu tiên (priority queue)
-# Bước 5️⃣: Cập nhật đường đi mới nếu tốt hơn → push lại vào queue
-# Bước 6️⃣: In kết quả cuối cùng là khoảng cách từ đỉnh 1 đến mọi đỉnh
+💡 Phân tích:
+1. Đồ thị vô hướng → dùng Kruskal
+2. Cần DSU để kiểm tra chu trình
+3. Sắp xếp cạnh theo trọng số
+4. Thêm cạnh nếu không tạo chu trình
+"""
+
+class DSU:
+    def __init__(self, n):
+        self.parent = list(range(n))
+        self.rank = [0]*n
+    
+    def find(self, x):
+        if self.parent[x] != x:
+            self.parent[x] = self.find(self.parent[x])
+        return self.parent[x]
+    
+    def union(self, x, y):
+        px, py = self.find(x), self.find(y)
+        if px == py: return False
+        if self.rank[px] < self.rank[py]:
+            px, py = py, px
+        self.parent[py] = px
+        if self.rank[px] == self.rank[py]:
+            self.rank[px] += 1
+        return True
+
+def solve_kruskal():
+    # ===== 1. Nhập dữ liệu =====
+    n, m = map(int, input().split())
+    edges = []
+    
+    for _ in range(m):
+        u, v, w = map(int, input().split())
+        edges.append((w, u-1, v-1))
+    
+    # ===== 2. Kruskal =====
+    edges.sort()  # Sắp xếp theo trọng số
+    dsu = DSU(n)
+    total = 0
+    mst_edges = []
+    
+    for w, u, v in edges:
+        if dsu.union(u, v):
+            total += w
+            mst_edges.append((u+1, v+1, w))
+    
+    # ===== 3. In kết quả =====
+    print("Tổng trọng số MST:", total)
+    print("Các cạnh trong MST:")
+    for u, v, w in mst_edges:
+        print(f"{u} - {v}: {w}")
+
+# ========= BÀI TOÁN 3: LUỒNG CỰC ĐẠI (FORD-FULKERSON) =========
+"""
+❓ Đề bài: Cho mạng với nguồn s và đích t, tìm luồng cực đại.
+
+🔍 INPUT:
+- Dòng 1: N M s t
+- M dòng tiếp: u v c
+
+🔎 OUTPUT:
+- Giá trị luồng cực đại
+- Ma trận luồng
+
+▶ Ví dụ:
+Input:
+4 5 1 4
+1 2 3
+1 3 2
+2 3 1
+2 4 2
+3 4 3
+Output:
+4
+0 2 2 0
+0 0 1 1
+0 0 0 2
+0 0 0 0
+
+💡 Phân tích:
+1. Mạng có hướng → dùng Ford-Fulkerson
+2. Cần ma trận cạnh và luồng
+3. Tìm đường tăng luồng bằng DFS
+4. Cập nhật luồng và cạnh ngược
+"""
+
+def solve_max_flow():
+    # ===== 1. Nhập dữ liệu =====
+    n, m, s, t = map(int, input().split())
+    s, t = s-1, t-1
+    cap = [[0]*n for _ in range(n)]
+    flow = [[0]*n for _ in range(n)]
+    
+    for _ in range(m):
+        u, v, c = map(int, input().split())
+        cap[u-1][v-1] = c
+    
+    # ===== 2. Ford-Fulkerson =====
+    def dfs(u, t, visited, min_flow):
+        if u == t: return min_flow
+        visited[u] = True
+        
+        for v in range(n):
+            if not visited[v] and cap[u][v] - flow[u][v] > 0:
+                f = dfs(v, t, visited, min(min_flow, cap[u][v] - flow[u][v]))
+                if f > 0:
+                    flow[u][v] += f
+                    flow[v][u] -= f
+                    return f
+        return 0
+    
+    # ===== 3. Tìm luồng cực đại =====
+    max_flow = 0
+    while True:
+        visited = [False]*n
+        f = dfs(s, t, visited, float('inf'))
+        if f == 0: break
+        max_flow += f
+    
+    # ===== 4. In kết quả =====
+    print("Luồng cực đại:", max_flow)
+    print("Ma trận luồng:")
+    for row in flow:
+        print(*row)
+
+# ========= BÀI TẬP THỰC HÀNH =========
+"""
+1. Bài tập cơ bản:
+   - Tìm đường đi ngắn nhất với ràng buộc
+   - Tìm cây khung nhỏ nhất với điều kiện
+   - Tìm luồng cực đại với chi phí tối thiểu
+
+2. Bài tập nâng cao:
+   - Đường đi ngắn nhất với k cạnh
+   - Cây khung nhỏ nhất với k cạnh cố định
+   - Luồng cực đại với nhiều nguồn/đích
+
+3. Ứng dụng thực tế:
+   - Thiết kế mạng máy tính
+   - Lập lịch sản xuất
+   - Phân tích mạng xã hội
+   - Game AI và pathfinding
+"""
+
+# ========= DEMO =========
+if __name__ == "__main__":
+    print("\n=== Demo các thuật toán đồ thị ===")
+    
+    print("\n1. Dijkstra - Đường đi ngắn nhất:")
+    # Test case mẫu
+    test_input = """5 6
+1 2 2
+1 3 4
+2 3 1
+2 4 7
+3 5 3
+4 5 1"""
+    import sys
+    from io import StringIO
+    sys.stdin = StringIO(test_input)
+    solve_dijkstra()
+    
+    print("\n2. Kruskal - Cây khung nhỏ nhất:")
+    test_input = """4 5
+1 2 2
+1 3 3
+2 3 1
+2 4 4
+3 4 5"""
+    sys.stdin = StringIO(test_input)
+    solve_kruskal()
+    
+    print("\n3. Ford-Fulkerson - Luồng cực đại:")
+    test_input = """4 5 1 4
+1 2 3
+1 3 2
+2 3 1
+2 4 2
+3 4 3"""
+    sys.stdin = StringIO(test_input)
+    solve_max_flow()
+    
+  

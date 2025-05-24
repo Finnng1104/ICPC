@@ -1,0 +1,49 @@
+Bài 1: Sắp xếp và tìm kiếm
+Topic: Array manipulation, sorting, binary search
+Difficulty: Easy
+Key concepts: Sorting, binary search, array operations
+
+Bài 2: Tìm đường đi ngắn nhất trên lưới
+Topic: Graph traversal, BFS
+Difficulty: Easy-Medium
+Key concepts: Grid traversal, BFS, path finding
+
+Bài 3: Bài toán cái túi (Knapsack)
+Topic: Dynamic Programming
+Difficulty: Medium
+Key concepts: DP, optimization, backtracking
+
+Bài 4: Tìm cặp số có tổng bằng X
+Topic: Two pointers, binary search
+Difficulty: Easy-Medium
+Key concepts: Sorting, two pointers, binary search
+
+Bài 5: Tìm tổ tiên chung gần nhất (LCA)
+Topic: Tree algorithms
+Difficulty: Medium
+Key concepts: Tree traversal, LCA, binary lifting
+
+Bài 6: Tìm xâu con chung dài nhất
+Topic: Dynamic Programming, String algorithms
+Difficulty: Medium
+Key concepts: LCS, DP, backtracking
+
+Bài 7: Cây khung nhỏ nhất với ràng buộc
+Topic: Graph algorithms, MST
+Difficulty: Medium
+Key concepts: Kruskal's algorithm, DSU, greedy
+
+Bài 8: Phân công công việc
+Topic: Binary search, greedy
+Difficulty: Medium
+Key concepts: Binary search, greedy algorithms, optimization
+
+Bài 9: Truy vấn đoạn con
+Topic: Segment trees, range queries
+Difficulty: Medium-Hard
+Key concepts: Segment trees, range queries, lazy propagation
+
+Bài 10: Bài toán người du lịch (TSP)
+Topic: Dynamic Programming, Bitmasking
+Difficulty: Hard
+Key concepts: TSP, DP with bitmask, path reconstruction

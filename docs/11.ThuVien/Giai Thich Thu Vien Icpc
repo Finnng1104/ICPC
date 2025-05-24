@@ -1,62 +1,283 @@
 # 📚 GIẢI THÍCH CHI TIẾT THƯ VIỆN ICPC CẦN DÙNG
-# Bao gồm: numpy, opencv-python, pillow, torch, torchvision
-# Dành cho ôn thi ICPC có bài toán xử lý ảnh, AI, ma trận
+# ===============================================
+"""
+Các thư viện Python quan trọng trong ICPC, đặc biệt cho bài toán:
+1. Xử lý ảnh và Computer Vision
+2. Học máy và AI
+3. Xử lý ma trận và tính toán số học
+4. Tối ưu hóa hiệu suất
+
+Mỗi thư viện có ưu điểm riêng và phù hợp với từng loại bài toán cụ thể.
+"""
 
 # ========== NUMPY ==========
-# Xử lý mảng số học nhanh, hỗ trợ toán học nền tảng
+"""
+NumPy (Numerical Python):
+1. Mục đích:
+   - Xử lý mảng đa chiều hiệu quả
+   - Tính toán số học nhanh
+   - Tối ưu bộ nhớ và tốc độ
+
+2. Ứng dụng trong ICPC:
+   - Xử lý ma trận lớn
+   - Tính toán vector
+   - Tối ưu thuật toán
+   - Xử lý dữ liệu đầu vào
+
+3. Ưu điểm:
+   - Nhanh hơn list Python
+   - Hỗ trợ broadcast
+   - Tối ưu bộ nhớ
+   - Nhiều hàm toán học
+"""
+
 import numpy as np
 
-arr = np.array([1, 2, 3, 4])  # tạo mảng numpy
+# 1. Tạo và thao tác mảng
+arr = np.array([1, 2, 3, 4])
 print("Mảng gốc:", arr)
-print("Cộng toàn bộ +1:", arr + 1)  # broadcast +1 cho toàn bộ
-print("Tổng:", np.sum(arr))        # tính tổng
+print("Cộng toàn bộ +1:", arr + 1)  # broadcast
+print("Tổng:", np.sum(arr))
+
+# 2. Ma trận và tính toán
+matrix = np.array([[1, 2], [3, 4]])
+print("\nMa trận 2x2:")
+print(matrix)
+print("Định thức:", np.linalg.det(matrix))
+print("Nghịch đảo:", np.linalg.inv(matrix))
+
+# 3. Tối ưu hóa
+# Tạo ma trận lớn và so sánh với list Python
+n = 1000
+np_matrix = np.zeros((n, n))  # Nhanh và tiết kiệm bộ nhớ
+print("\nTạo ma trận", n, "x", n, "với NumPy")
+
+# 4. Xử lý dữ liệu
+data = np.random.rand(1000)  # Tạo dữ liệu ngẫu nhiên
+print("\nThống kê cơ bản:")
+print("Trung bình:", np.mean(data))
+print("Độ lệch chuẩn:", np.std(data))
+print("Phân vị:", np.percentile(data, [25, 50, 75]))
 
 # ========== PILLOW (PIL) ==========
-# Đọc và xử lý ảnh đơn giản (Pillow là phiên bản nâng cấp PIL)
-from PIL import Image
+"""
+Pillow (Python Imaging Library):
+1. Mục đích:
+   - Xử lý ảnh cơ bản
+   - Chuyển đổi định dạng
+   - Thao tác pixel
 
-img = Image.new('RGB', (100, 100), color='red')  # tạo ảnh 100x100 màu đỏ
-img.save("sample.png")  # lưu ảnh
-print("📸 Đã tạo ảnh sample.png")
+2. Ứng dụng trong ICPC:
+   - Đọc/ghi ảnh
+   - Resize ảnh
+   - Chuyển đổi màu
+   - Vẽ hình
+
+3. Ưu điểm:
+   - Đơn giản, dễ sử dụng
+   - Hỗ trợ nhiều định dạng
+   - Tích hợp tốt với các thư viện khác
+"""
+
+from PIL import Image, ImageDraw, ImageFont
+
+# 1. Tạo và lưu ảnh
+img = Image.new('RGB', (100, 100), color='red')
+img.save("sample.png")
+print("\n📸 Đã tạo ảnh sample.png")
+
+# 2. Xử lý ảnh cơ bản
+img = Image.open("sample.png")
+print("Kích thước:", img.size)
+print("Chế độ màu:", img.mode)
+
+# 3. Thao tác ảnh
+img_resized = img.resize((50, 50))
+img_rotated = img.rotate(45)
+img_flipped = img.transpose(Image.FLIP_LEFT_RIGHT)
+
+# 4. Vẽ trên ảnh
+draw = ImageDraw.Draw(img)
+draw.rectangle([(20, 20), (80, 80)], outline='blue', width=2)
+draw.text((40, 40), "Hello", fill='white')
+img.save("sample_drawn.png")
 
 # ========== OPENCV (cv2) ==========
-# Xử lý ảnh nâng cao: đọc, lọc, ngưỡng, contour, nhận diện
-import cv2
+"""
+OpenCV (Open Source Computer Vision):
+1. Mục đích:
+   - Xử lý ảnh nâng cao
+   - Computer Vision
+   - Nhận diện đối tượng
+   - Xử lý video
 
-img_cv = cv2.imread("sample.png")               # đọc ảnh bằng OpenCV
-gray = cv2.cvtColor(img_cv, cv2.COLOR_BGR2GRAY) # chuyển sang grayscale
-_, thresh = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)  # ngưỡng hóa ảnh
-cv2.imwrite("gray_thresh.png", thresh)          # lưu lại ảnh ngưỡng
-print("🧪 Đã xử lý ảnh: gray_thresh.png")
+2. Ứng dụng trong ICPC:
+   - Xử lý ảnh phức tạp
+   - Tìm contour, edge
+   - Nhận diện mẫu
+   - Phân đoạn ảnh
+
+3. Ưu điểm:
+   - Hiệu suất cao
+   - Nhiều thuật toán có sẵn
+   - Tích hợp AI
+   - Xử lý realtime
+"""
+
+import cv2
+import numpy as np
+
+# 1. Đọc và xử lý ảnh
+img_cv = cv2.imread("sample.png")
+gray = cv2.cvtColor(img_cv, cv2.COLOR_BGR2GRAY)
+print("\n🧪 Xử lý ảnh với OpenCV")
+print("Kích thước ảnh:", img_cv.shape)
+
+# 2. Lọc và biến đổi
+# Gaussian blur
+blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+# Canny edge detection
+edges = cv2.Canny(blurred, 100, 200)
+# Threshold
+_, thresh = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)
+
+# 3. Tìm contour
+contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+print("Số contour tìm được:", len(contours))
+
+# 4. Vẽ kết quả
+cv2.drawContours(img_cv, contours, -1, (0, 255, 0), 2)
+cv2.imwrite("processed.png", img_cv)
 
 # ========== TORCH (PyTorch) ==========
-# Thư viện học sâu AI, làm việc với tensor
-import torch
+"""
+PyTorch:
+1. Mục đích:
+   - Deep Learning
+   - Xử lý tensor
+   - Huấn luyện mô hình
+   - Inference
 
-x = torch.tensor([1.0, 2.0, 3.0])     # tạo tensor
+2. Ứng dụng trong ICPC:
+   - Nhận diện đối tượng
+   - Phân loại ảnh
+   - Xử lý ngôn ngữ
+   - Tối ưu hóa
+
+3. Ưu điểm:
+   - Tính toán GPU
+   - Dynamic computation
+   - Dễ debug
+   - Cộng đồng lớn
+"""
+
+import torch
+import torch.nn as nn
+import torch.optim as optim
+
+# 1. Tạo và thao tác tensor
+x = torch.tensor([1.0, 2.0, 3.0])
+print("\n🔥 PyTorch Tensor Operations")
 print("Tensor ban đầu:", x)
-print("Bình phương từng phần tử:", x ** 2)
+print("Bình phương:", x ** 2)
+print("Tổng:", x.sum())
+
+# 2. Tạo mô hình đơn giản
+class SimpleNN(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.layer1 = nn.Linear(10, 5)
+        self.layer2 = nn.Linear(5, 1)
+    
+    def forward(self, x):
+        x = torch.relu(self.layer1(x))
+        return self.layer2(x)
+
+# 3. Tạo dữ liệu và huấn luyện
+model = SimpleNN()
+criterion = nn.MSELoss()
+optimizer = optim.SGD(model.parameters(), lr=0.01)
+
+# 4. Inference
+model.eval()
+with torch.no_grad():
+    test_input = torch.randn(1, 10)
+    prediction = model(test_input)
+    print("\nDự đoán mẫu:", prediction.item())
 
 # ========== TORCHVISION ==========
-# Hỗ trợ xử lý ảnh trong học sâu: mô hình, transform
-import torchvision.transforms as transforms
-from torchvision import models
+"""
+TorchVision:
+1. Mục đích:
+   - Dataset và DataLoader
+   - Transform ảnh
+   - Mô hình pretrained
+   - Utilities
 
+2. Ứng dụng trong ICPC:
+   - Load dataset
+   - Tiền xử lý ảnh
+   - Transfer learning
+   - Model evaluation
+
+3. Ưu điểm:
+   - Tích hợp PyTorch
+   - Nhiều mô hình có sẵn
+   - Transform chuẩn
+   - Dễ sử dụng
+"""
+
+import torchvision.transforms as transforms
+from torchvision import models, datasets
+
+# 1. Transform ảnh
 transform = transforms.Compose([
     transforms.Resize((224, 224)),
-    transforms.ToTensor()
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                       std=[0.229, 0.224, 0.225])
 ])
 
-# Tải mô hình ResNet18 pretrained
+# 2. Load mô hình pretrained
 model = models.resnet18(pretrained=True)
 model.eval()
+print("\n✅ Đã tải mô hình ResNet18")
 
-print("✅ Đã tải mô hình học sâu ResNet18 để dùng offline")
+# 3. Dataset và DataLoader
+# dataset = datasets.ImageFolder('path/to/data', transform=transform)
+# dataloader = torch.utils.data.DataLoader(dataset, batch_size=32)
 
-# ========== TỔNG KẾT ==========
-print("\n✅ Tóm tắt:")
-print("- numpy:	Xử lý mảng số học nhanh")
-print("- pillow:	Xử lý ảnh đơn giản, mở/lưu ảnh")
-print("- opencv:	Xử lý ảnh nâng cao, AI/vision")
-print("- torch:	Thư viện học sâu mạnh mẽ")
-print("- torchvision:	Model, biến đổi ảnh cho học sâu")
+# ========== TỔNG KẾT & ỨNG DỤNG ==========
+"""
+1. Bài toán ICPC phổ biến:
+   - Xử lý ảnh: OpenCV + NumPy
+   - AI/ML: PyTorch + TorchVision
+   - Tính toán ma trận: NumPy
+   - Đọc/ghi file: PIL
+
+2. Ứng dụng thực tế:
+   - Computer Vision: OpenCV
+   - Deep Learning: PyTorch
+   - Data Science: NumPy
+   - Image Processing: PIL
+
+3. Tips khi sử dụng:
+   - Chọn thư viện phù hợp với bài toán
+   - Tối ưu bộ nhớ và tốc độ
+   - Xử lý lỗi và ngoại lệ
+   - Kiểm tra kết quả
+"""
+
+print("\n✅ Tóm tắt các thư viện:")
+print("- numpy:    Xử lý mảng số học nhanh, tối ưu bộ nhớ")
+print("- pillow:   Xử lý ảnh cơ bản, đơn giản và dễ sử dụng")
+print("- opencv:   Xử lý ảnh nâng cao, computer vision")
+print("- torch:    Deep learning, tính toán tensor hiệu quả")
+print("- torchvision: Model pretrained, transform ảnh chuẩn")
+
+print("\n💡 Lưu ý khi sử dụng:")
+print("1. Cài đặt đúng phiên bản tương thích")
+print("2. Kiểm tra tài liệu và ví dụ")
+print("3. Tối ưu code cho từng thư viện")
+print("4. Xử lý lỗi và ngoại lệ")
+print("5. Test kỹ trước khi submit")
